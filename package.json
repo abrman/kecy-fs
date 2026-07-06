@@ -1,0 +1,35 @@
+{
+  "name": "kecy-file-server",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "concurrently -n server,client -c yellow,cyan \"bun --hot server/index.ts\" \"vite\"",
+    "build": "vite build",
+    "start": "bun server/index.ts",
+    "typecheck": "tsc --noEmit",
+    "prep:exe": "bun run build && bun scripts/embed-dist.ts",
+    "build:exe": "bun run prep:exe && bun build --compile --minify server/index.ts --outfile dist-bin/kecy-server",
+    "build:exe:all": "bun run prep:exe && bun build --compile --minify --target=bun-windows-x64 server/index.ts --outfile dist-bin/kecy-server-win-x64 && bun build --compile --minify --target=bun-darwin-arm64 server/index.ts --outfile dist-bin/kecy-server-mac-arm64 && bun build --compile --minify --target=bun-darwin-x64 server/index.ts --outfile dist-bin/kecy-server-mac-x64"
+  },
+  "dependencies": {
+    "clsx": "^2.1.1",
+    "fflate": "^0.8.2",
+    "hono": "^4.7.0",
+    "lucide-react": "^0.525.0",
+    "react": "^19.1.0",
+    "react-dom": "^19.1.0",
+    "react-router-dom": "^7.6.0",
+    "tailwind-merge": "^3.3.0"
+  },
+  "devDependencies": {
+    "@tailwindcss/vite": "^4.1.0",
+    "@types/bun": "^1.2.0",
+    "@types/react": "^19.1.0",
+    "@types/react-dom": "^19.1.0",
+    "@vitejs/plugin-react": "^4.5.0",
+    "concurrently": "^9.1.0",
+    "tailwindcss": "^4.1.0",
+    "typescript": "^5.8.0",
+    "vite": "^6.3.0"
+  }
+}
