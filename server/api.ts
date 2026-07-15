@@ -34,6 +34,7 @@ api.get("/me", (c) => {
     name: device.name,
     label: deviceLabel(device),
     isAdmin: c.get("isAdmin"),
+    maxUploadMb: MAX_UPLOAD_MB,
     serverNow: now(),
   });
 });
@@ -58,48 +59,77 @@ api.get("/activities/:id", (c) => {
 
 const SAFE_EXT = /^[a-z0-9]{1,10}$/i;
 
+// The file arrives as the raw request body (one file per request), with the
+// name in the `filename` query param. Never parse uploads with formData():
+// it buffers the whole body in RAM and Bun's multipart parser corrupts
+// bodies over 4 GiB (oven-sh/bun#21490).
 api.post("/activities/:id/uploads", async (c) => {
   const activity = getActivity(c.req.param("id"));
   if (!activity) return c.json({ error: "Activity not found" }, 404);
   if (isLocked(activity)) return c.json({ error: "This activity is closed — the deadline has passed." }, 403);
 
-  const form = await c.req.formData();
-  const files = form.getAll("files").filter((f): f is File => f instanceof File && f.size > 0);
-  if (files.length === 0) return c.json({ error: "No files received" }, 400);
+  if ((c.req.header("content-type") ?? "").includes("multipart/form-data")) {
+    return c.json({ error: "This page is out of date — refresh and try again." }, 400);
+  }
+
+  const name = (c.req.query("filename") ?? "").trim();
+  if (!name) return c.json({ error: "No files received" }, 400);
 
   const maxBytes = MAX_UPLOAD_MB * 1024 * 1024;
-  for (const f of files) {
-    if (f.size > maxBytes) {
-      return c.json({ error: `"${f.name}" is too big (limit is ${MAX_UPLOAD_MB} MB per file).` }, 413);
+  const tooBig = () => c.json({ error: `"${name}" is too big (limit is ${MAX_UPLOAD_MB} MB per file).` }, 413);
+  const declaredSize = Number(c.req.header("content-length"));
+  if (Number.isFinite(declaredSize) && declaredSize > maxBytes) return tooBig();
+
+  const body = c.req.raw.body;
+  if (!body) return c.json({ error: "No files received" }, 400);
+
+  mkdirSync(join(UPLOADS_DIR, activity.id), { recursive: true });
+
+  const id = crypto.randomUUID();
+  const rawExt = extname(name).slice(1);
+  const ext = SAFE_EXT.test(rawExt) ? `.${rawExt.toLowerCase()}` : "";
+  const storedPath = `${activity.id}/${id}${ext}`;
+  const absPath = join(UPLOADS_DIR, storedPath);
+
+  const sink = Bun.file(absPath).writer();
+  let size = 0;
+  let oversized = false;
+  try {
+    // Bun's ReadableStream is async-iterable at runtime; the DOM lib types don't know that.
+    for await (const chunk of body as unknown as AsyncIterable<Uint8Array>) {
+      size += chunk.byteLength;
+      if (size > maxBytes) {
+        oversized = true;
+        break;
+      }
+      sink.write(chunk);
+      await sink.flush();
     }
+    await sink.end();
+  } catch {
+    await Promise.resolve(sink.end()).catch(() => {});
+    await unlink(absPath).catch(() => {});
+    return c.json({ error: "Upload failed — connection interrupted." }, 400);
+  }
+  if (oversized || size === 0) {
+    await unlink(absPath).catch(() => {});
+    return oversized ? tooBig() : c.json({ error: "No files received" }, 400);
   }
 
-  const dir = join(UPLOADS_DIR, activity.id);
-  mkdirSync(dir, { recursive: true });
-
-  const created: UploadRow[] = [];
-  for (const f of files) {
-    const id = crypto.randomUUID();
-    const rawExt = extname(f.name).slice(1);
-    const ext = SAFE_EXT.test(rawExt) ? `.${rawExt.toLowerCase()}` : "";
-    const storedPath = `${activity.id}/${id}${ext}`;
-    await Bun.write(join(UPLOADS_DIR, storedPath), f);
-    const row: UploadRow = {
-      id,
-      activity_id: activity.id,
-      device_id: c.get("deviceId"),
-      original_name: f.name.slice(0, 300) || `file${ext}`,
-      stored_path: storedPath,
-      mime: f.type || "application/octet-stream",
-      size: f.size,
-      created_at: now(),
-    };
-    insertUpload(row);
-    created.push(row);
-  }
+  const row: UploadRow = {
+    id,
+    activity_id: activity.id,
+    device_id: c.get("deviceId"),
+    original_name: name.slice(0, 300),
+    stored_path: storedPath,
+    mime: c.req.header("content-type") || "application/octet-stream",
+    size,
+    created_at: now(),
+  };
+  insertUpload(row);
 
   const mine = listUploads(activity.id, c.get("deviceId")).map(uploadDto);
-  return c.json({ ok: true, createdCount: created.length, myUploads: mine }, 201);
+  return c.json({ ok: true, createdCount: 1, myUploads: mine }, 201);
 });
 
 api.delete("/uploads/:id", async (c) => {

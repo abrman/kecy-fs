@@ -18,6 +18,7 @@ import { api, ApiError, type Activity, type DeviceInfo } from "../lib/api";
 import { formatBytes, formatDateTime } from "../lib/format";
 import { useNow } from "../lib/useNow";
 import { ActivityDialog } from "../components/ActivityDialog";
+import { DownloadAllButton, MAX_ZIP_BYTES } from "../components/DownloadAllButton";
 import { DeadlineChip, PublicChip } from "../components/StatusChips";
 import { Badge } from "../components/ui/badge";
 import { Button } from "../components/ui/button";
@@ -129,13 +130,21 @@ export function Admin() {
                     View files
                   </Button>
                 </Link>
-                {(a.uploadCount ?? 0) > 0 && (
-                  <a href={`/api/admin/activities/${a.id}/zip`}>
-                    <Button variant="secondary" size="sm" tabIndex={-1}>
-                      <FolderDown className="h-4 w-4" /> ZIP
-                    </Button>
-                  </a>
-                )}
+                {(a.uploadCount ?? 0) > 0 &&
+                  ((a.totalSize ?? 0) > MAX_ZIP_BYTES ? (
+                    <DownloadAllButton
+                      activityId={a.id}
+                      fileCount={a.uploadCount ?? 0}
+                      label="Download all"
+                      onError={setError}
+                    />
+                  ) : (
+                    <a href={`/api/admin/activities/${a.id}/zip`}>
+                      <Button variant="secondary" size="sm" tabIndex={-1}>
+                        <FolderDown className="h-4 w-4" /> ZIP
+                      </Button>
+                    </a>
+                  ))}
                 <Button variant="secondary" size="sm" onClick={() => { setEditing(a); setDialogOpen(true); }}>
                   <Pencil className="h-4 w-4" /> Edit
                 </Button>

@@ -6,6 +6,7 @@ export interface Me {
   name: string | null;
   label: string;
   isAdmin: boolean;
+  maxUploadMb: number;
   serverNow: string;
 }
 
@@ -81,19 +82,55 @@ export async function api<T>(path: string, init?: { method?: string; body?: unkn
   return data as T;
 }
 
-/** Upload via XHR so we get progress events for the progress bar. */
-export function uploadFiles(
+// Oversized files must be caught before sending: past the limit the server
+// drops the connection mid-upload, so the browser only sees a network error.
+let maxUploadMbPromise: Promise<number> | null = null;
+function getMaxUploadMb(): Promise<number> {
+  maxUploadMbPromise ??= api<Me>("/api/me").then(
+    (me) => me.maxUploadMb || Infinity,
+    () => Infinity, // server still enforces the limit if this lookup fails
+  );
+  return maxUploadMbPromise;
+}
+
+/**
+ * Upload via XHR so we get progress events for the progress bar.
+ * Each file is sent as the raw request body of its own request (not multipart)
+ * so the server can stream it to disk — multipart parsing broke files over 4 GiB.
+ */
+export async function uploadFiles(
   activityId: string,
   files: File[],
   onProgress: (fraction: number) => void,
 ): Promise<{ myUploads: Upload[] }> {
+  const valid = files.filter((f) => f.size > 0);
+  if (valid.length === 0) throw new ApiError(400, "No files received");
+  const maxUploadMb = await getMaxUploadMb();
+  const tooBig = valid.find((f) => f.size > maxUploadMb * 1024 * 1024);
+  if (tooBig) {
+    throw new ApiError(413, `"${tooBig.name}" is too big (limit is ${maxUploadMb} MB per file).`);
+  }
+  const totalBytes = valid.reduce((sum, f) => sum + f.size, 0);
+  let doneBytes = 0;
+  let last: { myUploads: Upload[] } = { myUploads: [] };
+  for (const f of valid) {
+    last = await uploadOne(activityId, f, (loaded) => onProgress((doneBytes + loaded) / totalBytes));
+    doneBytes += f.size;
+  }
+  return last;
+}
+
+function uploadOne(
+  activityId: string,
+  file: File,
+  onLoaded: (bytes: number) => void,
+): Promise<{ myUploads: Upload[] }> {
   return new Promise((resolve, reject) => {
-    const fd = new FormData();
-    for (const f of files) fd.append("files", f);
     const xhr = new XMLHttpRequest();
-    xhr.open("POST", `/api/activities/${activityId}/uploads`);
+    xhr.open("POST", `/api/activities/${activityId}/uploads?filename=${encodeURIComponent(file.name)}`);
+    xhr.setRequestHeader("Content-Type", file.type || "application/octet-stream");
     xhr.upload.onprogress = (e) => {
-      if (e.lengthComputable) onProgress(e.loaded / e.total);
+      if (e.lengthComputable) onLoaded(e.loaded);
     };
     xhr.onload = () => {
       let data: { error?: string; myUploads?: Upload[] } | null = null;
@@ -109,7 +146,7 @@ export function uploadFiles(
       }
     };
     xhr.onerror = () => reject(new ApiError(0, "Network error during upload"));
-    xhr.send(fd);
+    xhr.send(file);
   });
 }
 

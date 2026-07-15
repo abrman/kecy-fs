@@ -5,6 +5,7 @@ import { api, type Activity, type Upload } from "../lib/api";
 import { formatBytes } from "../lib/format";
 import { useNow } from "../lib/useNow";
 import { ActivityDialog } from "../components/ActivityDialog";
+import { DownloadAllButton, MAX_ZIP_BYTES } from "../components/DownloadAllButton";
 import { FileCard, FileGrid } from "../components/FileCard";
 import { DeadlineChip, PublicChip } from "../components/StatusChips";
 import { Button } from "../components/ui/button";
@@ -71,13 +72,16 @@ export function AdminActivity() {
           {uploads.length} files · {formatBytes(totalSize)} · {groups.length} devices
         </p>
         <div className="mt-3 flex gap-2">
-          {uploads.length > 0 && (
-            <a href={`/api/admin/activities/${activity.id}/zip`}>
-              <Button variant="secondary" size="sm" tabIndex={-1}>
-                <FolderDown className="h-4 w-4" /> Download all as ZIP
-              </Button>
-            </a>
-          )}
+          {uploads.length > 0 &&
+            (totalSize > MAX_ZIP_BYTES ? (
+              <DownloadAllButton activityId={activity.id} fileCount={uploads.length} onError={setError} />
+            ) : (
+              <a href={`/api/admin/activities/${activity.id}/zip`}>
+                <Button variant="secondary" size="sm" tabIndex={-1}>
+                  <FolderDown className="h-4 w-4" /> Download all as ZIP
+                </Button>
+              </a>
+            ))}
           <Button variant="secondary" size="sm" onClick={() => setEditOpen(true)}>
             <Pencil className="h-4 w-4" /> Edit
           </Button>
