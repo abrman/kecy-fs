@@ -87,6 +87,32 @@ Bun.serve({
   fetch: app.fetch,
 });
 
+// Browsers try https:// first when someone types a bare domain name. With
+// nothing listening on 443 the OS firewall usually swallows the attempt, so
+// the browser hangs on "page isn't loading" instead of falling back to http.
+// Closing 443 connections immediately turns that hang into an instant
+// network error, which makes browsers retry over plain http right away.
+if (port === 80) {
+  try {
+    Bun.listen({
+      hostname: "0.0.0.0",
+      port: 443,
+      socket: {
+        open(socket) {
+          socket.end();
+        },
+        data() {},
+        error() {},
+      },
+    });
+    console.log("Rejecting https:// on port 443 so browsers fall back to http instantly.");
+  } catch {
+    console.warn(
+      "Could not claim port 443 — browsers that try https:// first may hang before falling back to http.",
+    );
+  }
+}
+
 console.log(`KECY file server listening on http://0.0.0.0:${port}`);
 console.log(`Data directory: ${DATA_DIR}`);
 if (config.usingDefaultPassword) {

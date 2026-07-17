@@ -8,6 +8,16 @@
       href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22><rect width=%2224%22 height=%2224%22 rx=%226%22 fill=%22%23fbbf24%22/><g transform=%22translate(4 4.2) scale(0.67)%22 fill=%22none%22 stroke=%22%23451a03%22 stroke-width=%222.5%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22><path d=%22M3.5 21 14 3%22/><path d=%22M20.5 21 10 3%22/><path d=%22M15.5 21 12 15l-3.5 6%22/><path d=%22M2 21h20%22/></g></svg>"
     />
     <title>KECY file server</title>
+    <script>
+      // Apply the theme before first paint to avoid a light flash.
+      // Saved choice wins; otherwise follow the device preference.
+      try {
+        var theme = localStorage.getItem("kecy_theme");
+        if (theme === "dark" || (!theme && matchMedia("(prefers-color-scheme: dark)").matches)) {
+          document.documentElement.classList.add("dark");
+        }
+      } catch {}
+    </script>
   </head>
   <body>
     <div id="root"></div>

@@ -25,14 +25,14 @@ export function Dialog({
   if (!open) return null;
   return createPortal(
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-      <div className="absolute inset-0 bg-zinc-950/40 backdrop-blur-sm" onClick={onClose} />
-      <div className="relative w-full max-w-md rounded-2xl bg-white p-5 shadow-xl">
+      <div className="absolute inset-0 bg-zinc-950/40 backdrop-blur-sm dark:bg-zinc-950/60" onClick={onClose} />
+      <div className="relative w-full max-w-md rounded-2xl bg-white p-5 shadow-xl dark:border dark:border-zinc-800 dark:bg-zinc-900">
         <div className="mb-4 flex items-center justify-between">
           <h2 className="text-lg font-bold">{title}</h2>
           <button
             type="button"
             onClick={onClose}
-            className="rounded-lg p-1.5 text-zinc-500 hover:bg-zinc-100 hover:text-zinc-900"
+            className="rounded-lg p-1.5 text-zinc-500 hover:bg-zinc-100 hover:text-zinc-900 dark:hover:bg-zinc-800 dark:hover:text-zinc-100"
           >
             <X className="h-5 w-5" />
           </button>

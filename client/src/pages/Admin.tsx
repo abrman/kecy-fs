@@ -53,7 +53,7 @@ export function Admin() {
 
   useEffect(refresh, [refresh]);
 
-  if (error) return <p className="py-12 text-center text-red-600">{error}</p>;
+  if (error) return <p className="py-12 text-center text-red-600 dark:text-red-400">{error}</p>;
   if (needsLogin) return <Login onSuccess={refresh} />;
   if (!state) return <Spinner />;
 
@@ -80,14 +80,16 @@ export function Admin() {
         </Button>
       </div>
 
-      <div className="flex gap-1 rounded-xl bg-zinc-200/70 p-1 text-sm font-semibold">
+      <div className="flex gap-1 rounded-xl bg-zinc-200/70 p-1 text-sm font-semibold dark:bg-zinc-800/70">
         {(["activities", "devices"] as const).map((t) => (
           <button
             key={t}
             type="button"
             onClick={() => setTab(t)}
             className={`flex-1 rounded-lg px-4 py-1.5 capitalize transition ${
-              tab === t ? "bg-white text-zinc-900 shadow-sm" : "text-zinc-500 hover:text-zinc-800"
+              tab === t
+                ? "bg-white text-zinc-900 shadow-sm dark:bg-zinc-950 dark:text-zinc-100"
+                : "text-zinc-500 hover:text-zinc-800 dark:text-zinc-400 dark:hover:text-zinc-200"
             }`}
           >
             {t} {t === "devices" && `(${state.devices.length})`}
@@ -101,20 +103,26 @@ export function Admin() {
             <Plus className="h-4 w-4" /> New activity
           </Button>
           {state.activities.length === 0 && (
-            <p className="rounded-2xl border border-zinc-200 bg-white p-8 text-center text-sm text-zinc-500">
+            <p className="rounded-2xl border border-zinc-200 bg-white p-8 text-center text-sm text-zinc-500 dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-400">
               No activities yet — create the first one!
             </p>
           )}
           {state.activities.map((a) => (
-            <div key={a.id} className="rounded-2xl border border-zinc-200 bg-white p-4 shadow-sm">
+            <div
+              key={a.id}
+              className="rounded-2xl border border-zinc-200 bg-white p-4 shadow-sm dark:border-zinc-800 dark:bg-zinc-900"
+            >
               <div className="flex flex-wrap items-center gap-2">
-                <Link to={`/admin/a/${a.id}`} className="font-bold text-zinc-900 hover:text-amber-700">
+                <Link
+                  to={`/admin/a/${a.id}`}
+                  className="font-bold text-zinc-900 hover:text-amber-700 dark:text-zinc-100 dark:hover:text-amber-400"
+                >
                   {a.title}
                 </Link>
                 <DeadlineChip activity={a} nowMs={nowMs} />
                 <PublicChip activity={a} />
               </div>
-              <p className="mt-1 flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-zinc-500">
+              <p className="mt-1 flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-zinc-500 dark:text-zinc-400">
                 <span className="inline-flex items-center gap-1">
                   <HardDrive className="h-3.5 w-3.5" />
                   {a.uploadCount} files · {formatBytes(a.totalSize ?? 0)}
@@ -172,14 +180,14 @@ export function Admin() {
 function DevicesTable({ devices, onChanged }: { devices: DeviceInfo[]; onChanged: () => void }) {
   if (devices.length === 0) {
     return (
-      <p className="rounded-2xl border border-zinc-200 bg-white p-8 text-center text-sm text-zinc-500">
+      <p className="rounded-2xl border border-zinc-200 bg-white p-8 text-center text-sm text-zinc-500 dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-400">
         No devices have connected yet.
       </p>
     );
   }
   return (
     <div className="space-y-2">
-      <p className="text-xs text-zinc-500">
+      <p className="text-xs text-zinc-500 dark:text-zinc-400">
         Give devices real names — campers see their codename in the top-right corner of their screen, so just ask
         "who is <em>{devices[0]?.codename}</em>?"
       </p>
@@ -204,17 +212,19 @@ function DeviceRow({ device, onChanged }: { device: DeviceInfo; onChanged: () =>
   }
 
   return (
-    <div className="flex flex-wrap items-center gap-3 rounded-2xl border border-zinc-200 bg-white p-3 shadow-sm">
-      <Smartphone className="h-5 w-5 shrink-0 text-zinc-400" />
+    <div className="flex flex-wrap items-center gap-3 rounded-2xl border border-zinc-200 bg-white p-3 shadow-sm dark:border-zinc-800 dark:bg-zinc-900">
+      <Smartphone className="h-5 w-5 shrink-0 text-zinc-400 dark:text-zinc-500" />
       <Link to={`/admin/d/${device.id}`} className="group min-w-0 flex-1" title="View this device's uploads">
         <div className="flex flex-wrap items-center gap-2">
-          <Badge variant="amber" className="group-hover:bg-amber-200">{device.codename}</Badge>
-          <span className="text-xs text-zinc-400">
+          <Badge variant="amber" className="group-hover:bg-amber-200 dark:group-hover:bg-amber-900">
+            {device.codename}
+          </Badge>
+          <span className="text-xs text-zinc-400 dark:text-zinc-500">
             {device.uploadCount} uploads · last seen {formatDateTime(device.lastSeen)}
           </span>
-          <ChevronRight className="h-4 w-4 text-zinc-300 group-hover:text-amber-500" />
+          <ChevronRight className="h-4 w-4 text-zinc-300 group-hover:text-amber-500 dark:text-zinc-600" />
         </div>
-        <p className="mt-0.5 truncate text-xs text-zinc-400" title={device.userAgent}>
+        <p className="mt-0.5 truncate text-xs text-zinc-400 dark:text-zinc-500" title={device.userAgent}>
           {device.userAgent || "unknown browser"}
         </p>
       </Link>
@@ -232,7 +242,7 @@ function DeviceRow({ device, onChanged }: { device: DeviceInfo; onChanged: () =>
           placeholder="Camper's name…"
           className="w-44"
         />
-        {saved && <Check className="h-4 w-4 text-emerald-600" />}
+        {saved && <Check className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />}
       </form>
     </div>
   );
@@ -257,11 +267,11 @@ function Login({ onSuccess }: { onSuccess: () => void }) {
   }
 
   return (
-    <div className="mx-auto mt-12 max-w-sm rounded-2xl border border-zinc-200 bg-white p-6 shadow-sm">
+    <div className="mx-auto mt-12 max-w-sm rounded-2xl border border-zinc-200 bg-white p-6 shadow-sm dark:border-zinc-800 dark:bg-zinc-900">
       <h1 className="mb-1 flex items-center gap-2 text-lg font-bold">
         <KeyRound className="h-5 w-5 text-amber-500" /> Admin login
       </h1>
-      <p className="mb-4 text-sm text-zinc-500">Leaders only. Campers, nothing to see here 👀</p>
+      <p className="mb-4 text-sm text-zinc-500 dark:text-zinc-400">Leaders only. Campers, nothing to see here 👀</p>
       <form
         className="space-y-3"
         onSubmit={(e) => {
@@ -276,7 +286,7 @@ function Login({ onSuccess }: { onSuccess: () => void }) {
           placeholder="Password"
           autoFocus
         />
-        {error && <p className="text-sm font-medium text-red-600">{error}</p>}
+        {error && <p className="text-sm font-medium text-red-600 dark:text-red-400">{error}</p>}
         <Button type="submit" className="w-full" disabled={busy || !password}>
           {busy ? "Checking…" : "Log in"}
         </Button>

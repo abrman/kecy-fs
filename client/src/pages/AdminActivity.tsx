@@ -42,7 +42,7 @@ export function AdminActivity() {
     return [...map.entries()].sort((a, b) => a[0].localeCompare(b[0]));
   }, [detail]);
 
-  if (error) return <p className="py-12 text-center text-red-600">{error}</p>;
+  if (error) return <p className="py-12 text-center text-red-600 dark:text-red-400">{error}</p>;
   if (!detail) return <Spinner />;
   const { activity, uploads } = detail;
   const totalSize = uploads.reduce((sum, u) => sum + u.size, 0);
@@ -60,7 +60,10 @@ export function AdminActivity() {
   return (
     <div className="space-y-6">
       <div>
-        <Link to="/admin" className="mb-2 inline-flex items-center gap-1 text-sm text-zinc-500 hover:text-zinc-900">
+        <Link
+          to="/admin"
+          className="mb-2 inline-flex items-center gap-1 text-sm text-zinc-500 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-100"
+        >
           <ChevronLeft className="h-4 w-4" /> Admin
         </Link>
         <div className="flex flex-wrap items-center gap-2">
@@ -68,7 +71,7 @@ export function AdminActivity() {
           <DeadlineChip activity={activity} nowMs={nowMs} />
           <PublicChip activity={activity} />
         </div>
-        <p className="mt-1 text-sm text-zinc-500">
+        <p className="mt-1 text-sm text-zinc-500 dark:text-zinc-400">
           {uploads.length} files · {formatBytes(totalSize)} · {groups.length} devices
         </p>
         <div className="mt-3 flex gap-2">
@@ -88,12 +91,12 @@ export function AdminActivity() {
         </div>
       </div>
 
-      {uploads.length === 0 && <p className="text-sm text-zinc-500">No uploads yet.</p>}
+      {uploads.length === 0 && <p className="text-sm text-zinc-500 dark:text-zinc-400">No uploads yet.</p>}
 
       {groups.map(([label, groupUploads]) => (
         <section key={label} className="space-y-2">
-          <h2 className="font-semibold text-zinc-700">
-            {label} <span className="font-normal text-zinc-400">({groupUploads.length})</span>
+          <h2 className="font-semibold text-zinc-700 dark:text-zinc-300">
+            {label} <span className="font-normal text-zinc-400 dark:text-zinc-500">({groupUploads.length})</span>
           </h2>
           <FileGrid>
             {groupUploads.map((u) => (

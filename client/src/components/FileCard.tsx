@@ -14,7 +14,7 @@ function Preview({ upload }: { upload: Upload }) {
   if (upload.mime.startsWith("audio/")) {
     return (
       <div className="flex h-full w-full flex-col items-center justify-center gap-3 p-3">
-        <Music className="h-8 w-8 text-zinc-400" />
+        <Music className="h-8 w-8 text-zinc-400 dark:text-zinc-500" />
         <audio src={src} controls preload="metadata" className="w-full" />
       </div>
     );
@@ -22,7 +22,7 @@ function Preview({ upload }: { upload: Upload }) {
   const Icon = upload.mime.startsWith("text/") ? FileText : File;
   const ext = upload.originalName.includes(".") ? upload.originalName.split(".").pop() : "";
   return (
-    <div className="flex h-full w-full flex-col items-center justify-center gap-2 text-zinc-400">
+    <div className="flex h-full w-full flex-col items-center justify-center gap-2 text-zinc-400 dark:text-zinc-500">
       <Icon className="h-10 w-10" />
       {ext && <span className="text-xs font-semibold uppercase">{ext}</span>}
     </div>
@@ -39,8 +39,8 @@ export function FileCard({
   showOwner?: boolean;
 }) {
   return (
-    <div className="group overflow-hidden rounded-xl border border-zinc-200 bg-white shadow-sm">
-      <div className="h-40 bg-zinc-100">
+    <div className="group overflow-hidden rounded-xl border border-zinc-200 bg-white shadow-sm dark:border-zinc-800 dark:bg-zinc-900">
+      <div className="h-40 bg-zinc-100 dark:bg-zinc-800">
         <Preview upload={upload} />
       </div>
       <div className="flex items-center gap-2 p-2.5">
@@ -48,7 +48,7 @@ export function FileCard({
           <p className="truncate text-sm font-medium" title={upload.originalName}>
             {upload.originalName}
           </p>
-          <p className="truncate text-xs text-zinc-500">
+          <p className="truncate text-xs text-zinc-500 dark:text-zinc-400">
             {showOwner ? `${upload.deviceLabel} · ` : ""}
             {formatBytes(upload.size)}
           </p>

@@ -89,6 +89,15 @@ terminal must be elevated: on Windows right-click Start → **Terminal (Admin)**
 your router or a local DNS server lets you give the computer a friendly name, that
 name will work too — but the plain IP address is always enough.
 
+**Using a domain name?** Browsers try `https://` first when someone types a bare
+name like `camp.example.com`. There's no real HTTPS on a local network (certificate
+authorities won't issue certificates for private addresses), so when running on
+port 80 the server also answers on port 443 just to say "no" instantly — that makes
+browsers fall back to plain `http://` right away instead of hanging on a loading
+screen. For this to work port 443 must not be blocked by the firewall (the normal
+"Allow" popup covers it, since it allows the app rather than a single port). If a
+device still gets stuck, typing `http://` in front of the name always works.
+
 ---
 
 ## For developers
@@ -137,6 +146,9 @@ Windows Firewall rule (if the allow popup never appeared):
 ```powershell
 New-NetFirewallRule -DisplayName "KECY" -Direction Inbound -Protocol TCP -LocalPort 3000 -Action Allow
 ```
+
+(When running on port 80 behind a domain name, allow `80,443` instead of `3000` —
+443 is the https fast-reject listener described above.)
 
 ### How it works
 

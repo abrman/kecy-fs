@@ -41,7 +41,7 @@ export function Activity() {
     return [...groups.entries()].sort((a, b) => a[0].localeCompare(b[0]));
   }, [detail?.allUploads]);
 
-  if (error) return <p className="py-12 text-center text-red-600">{error}</p>;
+  if (error) return <p className="py-12 text-center text-red-600 dark:text-red-400">{error}</p>;
   if (!detail) return <Spinner />;
   const { activity } = detail;
 
@@ -67,7 +67,10 @@ export function Activity() {
   return (
     <div className="space-y-6">
       <div>
-        <Link to="/" className="mb-2 inline-flex items-center gap-1 text-sm text-zinc-500 hover:text-zinc-900">
+        <Link
+          to="/"
+          className="mb-2 inline-flex items-center gap-1 text-sm text-zinc-500 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-100"
+        >
           <ChevronLeft className="h-4 w-4" /> All activities
         </Link>
         <div className="flex flex-wrap items-center gap-2">
@@ -75,11 +78,13 @@ export function Activity() {
           <DeadlineChip activity={activity} nowMs={nowMs} />
           <PublicChip activity={activity} />
         </div>
-        {activity.description && <p className="mt-1 whitespace-pre-wrap text-zinc-600">{activity.description}</p>}
+        {activity.description && (
+          <p className="mt-1 whitespace-pre-wrap text-zinc-600 dark:text-zinc-400">{activity.description}</p>
+        )}
       </div>
 
       {locked ? (
-        <div className="flex items-center gap-3 rounded-2xl border border-red-200 bg-red-50 p-4 text-sm text-red-800">
+        <div className="flex items-center gap-3 rounded-2xl border border-red-200 bg-red-50 p-4 text-sm text-red-800 dark:border-red-900 dark:bg-red-950/50 dark:text-red-300">
           <Lock className="h-5 w-5 shrink-0" />
           <p>
             This activity closed{activity.deadline ? ` on ${formatDateTime(activity.deadline)}` : ""}. Uploading and
@@ -100,14 +105,14 @@ export function Activity() {
           onError={setActionError}
         />
       )}
-      {actionError && <p className="text-sm font-medium text-red-600">{actionError}</p>}
+      {actionError && <p className="text-sm font-medium text-red-600 dark:text-red-400">{actionError}</p>}
 
       <section className="space-y-3">
-        <h2 className="font-bold text-zinc-800">
-          Your uploads <span className="font-normal text-zinc-400">({detail.myUploads.length})</span>
+        <h2 className="font-bold text-zinc-800 dark:text-zinc-200">
+          Your uploads <span className="font-normal text-zinc-400 dark:text-zinc-500">({detail.myUploads.length})</span>
         </h2>
         {detail.myUploads.length === 0 ? (
-          <p className="text-sm text-zinc-500">Nothing uploaded from this device yet.</p>
+          <p className="text-sm text-zinc-500 dark:text-zinc-400">Nothing uploaded from this device yet.</p>
         ) : (
           <FileGrid>
             {detail.myUploads.map((u) => (
@@ -121,13 +126,14 @@ export function Activity() {
         <section className="space-y-4">
           <div className="flex items-center gap-2">
             <Globe className="h-5 w-5 text-violet-500" />
-            <h2 className="font-bold text-zinc-800">
-              Everyone's uploads <span className="font-normal text-zinc-400">({detail.allUploads!.length})</span>
+            <h2 className="font-bold text-zinc-800 dark:text-zinc-200">
+              Everyone's uploads{" "}
+              <span className="font-normal text-zinc-400 dark:text-zinc-500">({detail.allUploads!.length})</span>
             </h2>
           </div>
           {others.map(([label, uploads]) => (
             <div key={label} className="space-y-2">
-              <h3 className="text-sm font-semibold text-zinc-500">{label}</h3>
+              <h3 className="text-sm font-semibold text-zinc-500 dark:text-zinc-400">{label}</h3>
               <FileGrid>
                 {uploads.map((u) => (
                   <FileCard key={u.id} upload={u} />

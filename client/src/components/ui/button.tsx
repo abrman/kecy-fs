@@ -3,10 +3,12 @@ import { cn } from "../../lib/utils";
 
 const variants = {
   primary: "bg-amber-400 text-amber-950 hover:bg-amber-300 shadow-sm",
-  secondary: "bg-white text-zinc-800 border border-zinc-300 hover:bg-zinc-50 shadow-sm",
-  ghost: "text-zinc-600 hover:bg-zinc-200/70 hover:text-zinc-900",
+  secondary:
+    "bg-white text-zinc-800 border border-zinc-300 hover:bg-zinc-50 shadow-sm dark:bg-zinc-900 dark:text-zinc-200 dark:border-zinc-700 dark:hover:bg-zinc-800",
+  ghost:
+    "text-zinc-600 hover:bg-zinc-200/70 hover:text-zinc-900 dark:text-zinc-400 dark:hover:bg-zinc-800 dark:hover:text-zinc-100",
   danger: "bg-red-600 text-white hover:bg-red-500 shadow-sm",
-  dangerGhost: "text-red-600 hover:bg-red-50",
+  dangerGhost: "text-red-600 hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-950/60",
 };
 
 const sizes = {

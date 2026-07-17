@@ -2,12 +2,12 @@
 // Maps URL paths to client build files so `bun build --compile` embeds them
 // into the standalone executable. Empty during normal development (the server
 // falls back to reading client/dist from disk).
-import f0 from "../client/dist/assets/index-NUkPPTCv.js" with { type: "file" };
-import f1 from "../client/dist/assets/index-TO3LUdDO.css" with { type: "file" };
+import f0 from "../client/dist/assets/index-DFQrav3R.css" with { type: "file" };
+import f1 from "../client/dist/assets/index-n9ZJgRAB.js" with { type: "file" };
 import f2 from "../client/dist/index.html" with { type: "file" };
 
 export const distFiles: Record<string, string> = {
-  "/assets/index-NUkPPTCv.js": f0,
-  "/assets/index-TO3LUdDO.css": f1,
+  "/assets/index-DFQrav3R.css": f0,
+  "/assets/index-n9ZJgRAB.js": f1,
   "/index.html": f2,
 };

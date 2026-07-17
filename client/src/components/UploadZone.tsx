@@ -49,7 +49,9 @@ export function UploadZone({
       }}
       className={cn(
         "relative w-full overflow-hidden rounded-2xl border-2 border-dashed p-8 text-center transition-colors",
-        dragging ? "border-amber-500 bg-amber-50" : "border-zinc-300 bg-white hover:border-amber-400 hover:bg-amber-50/50",
+        dragging
+          ? "border-amber-500 bg-amber-50 dark:bg-amber-950/40"
+          : "border-zinc-300 bg-white hover:border-amber-400 hover:bg-amber-50/50 dark:border-zinc-700 dark:bg-zinc-900 dark:hover:border-amber-500 dark:hover:bg-amber-950/20",
         busy && "pointer-events-none",
       )}
     >
@@ -62,8 +64,10 @@ export function UploadZone({
       />
       {busy ? (
         <div className="space-y-3">
-          <p className="text-sm font-semibold text-zinc-700">Uploading… {Math.round((progress ?? 0) * 100)}%</p>
-          <div className="mx-auto h-2 w-full max-w-sm overflow-hidden rounded-full bg-zinc-200">
+          <p className="text-sm font-semibold text-zinc-700 dark:text-zinc-200">
+            Uploading… {Math.round((progress ?? 0) * 100)}%
+          </p>
+          <div className="mx-auto h-2 w-full max-w-sm overflow-hidden rounded-full bg-zinc-200 dark:bg-zinc-700">
             <div
               className="h-full rounded-full bg-amber-500 transition-[width]"
               style={{ width: `${Math.round((progress ?? 0) * 100)}%` }}
@@ -73,8 +77,8 @@ export function UploadZone({
       ) : (
         <div className="space-y-1">
           <CloudUpload className="mx-auto h-8 w-8 text-amber-500" />
-          <p className="text-sm font-semibold text-zinc-800">Tap to choose files, or drop them here</p>
-          <p className="text-xs text-zinc-500">Photos, videos, memes — anything goes</p>
+          <p className="text-sm font-semibold text-zinc-800 dark:text-zinc-200">Tap to choose files, or drop them here</p>
+          <p className="text-xs text-zinc-500 dark:text-zinc-400">Photos, videos, memes — anything goes</p>
         </div>
       )}
     </button>

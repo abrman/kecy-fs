@@ -1,9 +1,18 @@
 @import "tailwindcss";
 
+/* Dark mode is driven by the .dark class on <html> (set by ThemeToggle and the
+   inline script in index.html) instead of the OS media query, so the user can
+   override their device preference. */
+@custom-variant dark (&:where(.dark, .dark *));
+
 html {
   color-scheme: light;
 }
 
+html.dark {
+  color-scheme: dark;
+}
+
 body {
-  @apply bg-zinc-100 text-zinc-900 antialiased;
+  @apply bg-zinc-100 text-zinc-900 antialiased dark:bg-zinc-950 dark:text-zinc-100;
 }

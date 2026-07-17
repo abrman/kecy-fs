@@ -93,18 +93,18 @@ export function ActivityDialog({
             value={deadline}
             onChange={(e) => setDeadline(e.target.value)}
           />
-          <p className="mt-1 text-xs text-zinc-500">
+          <p className="mt-1 text-xs text-zinc-500 dark:text-zinc-400">
             After the deadline campers can't add or delete files. Leave empty to keep it open.
           </p>
         </div>
-        <div className="flex items-center justify-between gap-3 rounded-xl bg-zinc-50 p-3">
+        <div className="flex items-center justify-between gap-3 rounded-xl bg-zinc-50 p-3 dark:bg-zinc-800/50">
           <div>
             <p className="text-sm font-medium">Public gallery</p>
-            <p className="text-xs text-zinc-500">Campers can see and download everyone's uploads</p>
+            <p className="text-xs text-zinc-500 dark:text-zinc-400">Campers can see and download everyone's uploads</p>
           </div>
           <Switch checked={isPublic} onChange={setIsPublic} />
         </div>
-        {error && <p className="text-sm font-medium text-red-600">{error}</p>}
+        {error && <p className="text-sm font-medium text-red-600 dark:text-red-400">{error}</p>}
         <div className="flex justify-end gap-2">
           <Button variant="secondary" onClick={onClose}>
             Cancel
